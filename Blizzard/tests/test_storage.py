@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import unittest
 
 def initPath():
@@ -14,45 +15,50 @@ from Blizzard import storage
 class testStorage(unittest.TestCase):
     """docstring for testStorage"""
     def setUp(self):
-        pass
+        self.saver = storage.MessageSaver()
 
     def test_SaveSingleMsg(self):
         # normal condition
-        self.assertTrue(storage.saveSingleMsg(sender=u"Alex", receiver=u"Tom", msg=u"Hello!"))
+        self.assertTrue(self.saver.saveSingleMsg(sender=u"Alex",
+            receiver=u"Tom", msg=[time.strftime(
+                "%Y-%m-%d %H:%M:%S",time.localtime()), u"Hello!"]))
         # missing required args
-        self.assertRaises(TypeError, storage.saveSingleMsg, )
+        self.assertRaises(TypeError, self.saver.saveSingleMsg, )
         # getting unexpected args
-        self.assertRaises(TypeError, storage.saveSingleMsg, unkown="Tom")
-        self.assertRaises(TypeError, storage.saveSingleMsg, "unkown arg")
+        self.assertRaises(TypeError, self.saver.saveSingleMsg, unkown="Tom")
+        self.assertRaises(TypeError, self.saver.saveSingleMsg, "unkown arg")
         # required args being empty
-        self.assertFalse(storage.saveSingleMsg(sender="", receiver="", msg=""))
+        self.assertFalse(self.saver.saveSingleMsg(
+            sender="", receiver="", msg=[]))
 
     def test_SaveGroupMsg(self):
         # normal condition
-        self.assertTrue(storage.saveGroupMsg(sender=u"Alex", group_id=10001, msg=u"Hi, everyone!"))
+        self.assertTrue(self.saver.saveGroupMsg(sender=u"Alex",
+            group_id=10001, msg=[time.strftime(
+                "%Y-%m-%d %H:%M:%S",time.localtime()), u"Hi, everyone!"]))
         # missing required args
-        self.assertRaises(TypeError, storage.saveGroupMsg, )
+        self.assertRaises(TypeError, self.saver.saveGroupMsg, )
         # getting unexpected args
-        self.assertRaises(TypeError, storage.saveGroupMsg, unkown="Tom")
-        self.assertRaises(TypeError, storage.saveGroupMsg, "unkown arg")
+        self.assertRaises(TypeError, self.saver.saveGroupMsg, unkown="Tom")
+        self.assertRaises(TypeError, self.saver.saveGroupMsg, "unkown arg")
         # required args being empty
-        self.assertFalse(storage.saveGroupMsg(sender="", group_id="", msg=""))
+        self.assertFalse(self.saver.saveGroupMsg(
+            sender="", group_id="", msg=[]))
 
     def test_SavePicture(self):
         # normal condition
-        status_code, path = storage.savePicture(content="abcdefg",format=".jpg")
-        self.assertEqual(status_code, True)
+        path = self.saver.savePicture(content="abcdefg",format=".jpg")
         import hashlib
         md5 = hashlib.md5()
         md5.update("abcdefg")
         pic_name = md5.hexdigest()
         self.assertEqual(path, pic_name+".jpg")
         # missing required args
-        self.assertRaises(TypeError, storage.savePicture, )
+        self.assertRaises(TypeError, self.saver.savePicture, )
         # getting unexpected args
-        self.assertRaises(TypeError, storage.savePicture, sender="")
+        self.assertRaises(TypeError, self.saver.savePicture, sender="")
         # required args being empty
-        self.assertFalse(storage.savePicture(content="",format=""))
+        self.assertFalse(self.saver.savePicture(content="",format=""))
 
 
 if __name__ == '__main__':
