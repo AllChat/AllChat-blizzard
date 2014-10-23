@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import sys
 import unittest
@@ -14,10 +15,11 @@ from Blizzard import encrypt
 
 class testEncrypt(unittest.TestCase):
     def setUp(self):
-        self.encryptor = encrypt.Encryptor(random.randint(1000000, 100000000))
+        key = "".join([hex(random.randint(1,15))[2:] for x in xrange(16)])
+        self.encryptor = encrypt.Encryptor(int(key, 16))
         
     def test_Encryptor(self):
-        original_str = u"Äã¹þ£¬°¢ÖÒ123"
+        original_str = "0123;abcd,ä½ è¯´çš„å¯¹!@$#%"
         encrypted_str = self.encryptor.EncryptStr(original_str)
         self.assertNotEqual(original_str, encrypted_str)
         decrypted_str = self.encryptor.DecryptStr(encrypted_str)

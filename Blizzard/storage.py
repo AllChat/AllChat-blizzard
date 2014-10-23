@@ -11,9 +11,9 @@ class MessageSaver(object):
         self._single_message_dict = defaultdict(list)
         self._group_message_dict = defaultdict(list)
         self._current_directory = os.path.dirname(os.path.abspath(__file__))
-        self._timer = None
-        self._encryptor = Encryptor(3881916286)
         self._get_config()
+        self._timer = None
+        self._encryptor = Encryptor(self._encrypt_key)
         self._start_writing()
 
     def _get_config(self):
@@ -23,6 +23,7 @@ class MessageSaver(object):
             config_dict = dict(tuple(line.split(";")[0].split(" "))
                 for line in conf)
         self._writing_interval = float(config_dict.get("writing_interval", 600))
+        self._encrypt_key = int(config_dict.get("encrypt_key"))
 
     def _start_writing(self):
         if self._single_message_dict or self._group_message_dict:
@@ -33,8 +34,6 @@ class MessageSaver(object):
             for users in self._single_message_dict.iterkeys():
                 sender, receiver = users.split("&&")
                 messages = "\r\n\r\n".join(self._single_message_dict[users])
-                ## ...................................
-                ## encrypt messages here... to be done
                 messages = self._encryptor.EncryptStr(messages)
                 directory = os.path.join(root, "data", "single_messages",
                     sender, receiver, year, month, day)
@@ -53,8 +52,6 @@ class MessageSaver(object):
             self._single_message_dict = defaultdict(list)
             for group_id in self._group_message_dict.iterkeys():
                 messages = "\r\n\r\n".join(self._group_message_dict[group_id])
-                ## ...................................
-                ## encrypt messages here... to be done
                 messages = self._encryptor.EncryptStr(messages)
                 directory = os.path.join(root, "data", "group_messages",
                     str(group_id), year, month, day)
@@ -67,6 +64,8 @@ class MessageSaver(object):
         self.timer = Timer(self._writing_interval, self._start_writing)
         self.timer.start()
 
+    ## for use of unittest, to close writing loop
+    ## as well as shutting down the server
     def __stop_writing(self):
         self.timer.cancel()
 

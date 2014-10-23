@@ -1,18 +1,22 @@
 # -*- coding: utf-8 -*-
 class Encryptor(object):
     def __init__(self, key):
-        self.key = key
+        self._key = key
+        self._key_length = len(hex(key).lstrip("0x").rstrip("L"))
+        self._block_length = self._key_length-1
 
     def EncryptStr(self,string):
-        if not isinstance(string,unicode):
-            raise TypeError
-        hex_str = "".join([x.encode("hex").zfill(6) for x in string])
-        encrypted_str = "".join([hex(int(hex_str[index*16:(index+1)*16],16)^self.key)[2:-1]
-                                 for index in xrange(len(hex_str)/16+1)
-                                 if hex_str[index*16:(index+1)*16]])
-        return encrypted_str
+        hex_str = string.encode("hex")
+        blocks = len(hex_str)/self._block_length
+        if len(hex_str)%self._block_length>0:
+            blocks += 1
+            hex_str = hex_str.zfill(blocks*self._block_length)
+        return "".join([hex(int(hex_str[i*self._block_length:(i+1)*self._block_length],16)^self._key
+            ).lstrip("0x").rstrip("L").zfill(self._key_length) for i in xrange(blocks)])
 
     def DecryptStr(self,string):
-        decrypted_str = ''
-        
-        return decryptedStr
+        blocks = len(string)/self._key_length
+        hex_str = "".join([hex(int(string[i*self._key_length:(i+1)*self._key_length],16)^self._key
+            ).lstrip("0x").rstrip("L").zfill(self._block_length) for i in xrange(blocks)])
+        hex_str = hex_str.lstrip("0")
+        return hex_str.decode("hex")
