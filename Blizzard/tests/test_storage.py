@@ -21,7 +21,7 @@ class testStorage(unittest.TestCase):
         # normal condition
         self.assertTrue(self.saver.saveSingleMsg(sender=u"Alex",
             receiver=u"Tom", msg=[time.strftime(
-                "%Y-%m-%d %H:%M:%S",time.localtime()), u"Hello!"]))
+                "%Y-%m-%d %H:%M:%S",time.localtime()), u"hello!"]))
         # missing required args
         self.assertRaises(TypeError, self.saver.saveSingleMsg, )
         # getting unexpected args
@@ -60,6 +60,8 @@ class testStorage(unittest.TestCase):
         # required args being empty
         self.assertFalse(self.saver.savePicture(content="",format=""))
 
+    def tearDown(self):
+        self.saver._MessageSaver__stop_writing()
 
 if __name__ == '__main__':
     unittest.main()

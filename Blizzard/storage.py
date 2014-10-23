@@ -4,12 +4,15 @@ import time
 import hashlib
 from threading import Timer
 from collections import defaultdict
+from encrypt import Encryptor
 
 class MessageSaver(object):
     def __init__(self):
         self._single_message_dict = defaultdict(list)
         self._group_message_dict = defaultdict(list)
         self._current_directory = os.path.dirname(os.path.abspath(__file__))
+        self._timer = None
+        self._encryptor = Encryptor(3881916286)
         self._get_config()
         self._start_writing()
 
@@ -17,7 +20,7 @@ class MessageSaver(object):
         root = os.path.dirname(self._current_directory)
         conf_path = os.path.join(root, "conf", "blizzard.conf")
         with open(conf_path,"rb") as conf:
-            config_dict = dict(tuple(line.strip(";\n").split(" "))
+            config_dict = dict(tuple(line.split(";")[0].split(" "))
                 for line in conf)
         self._writing_interval = float(config_dict.get("writing_interval", 600))
 
@@ -32,7 +35,7 @@ class MessageSaver(object):
                 messages = "\r\n\r\n".join(self._single_message_dict[users])
                 ## ...................................
                 ## encrypt messages here... to be done
-                ## ...................................
+                messages = self._encryptor.EncryptStr(messages)
                 directory = os.path.join(root, "data", "single_messages",
                     sender, receiver, year, month, day)
                 if not os.path.exists(directory):
@@ -52,17 +55,20 @@ class MessageSaver(object):
                 messages = "\r\n\r\n".join(self._group_message_dict[group_id])
                 ## ...................................
                 ## encrypt messages here... to be done
-                ## ...................................
+                messages = self._encryptor.EncryptStr(messages)
                 directory = os.path.join(root, "data", "group_messages",
-                    group_id, year, month, day)
+                    str(group_id), year, month, day)
                 if not os.path.exists(directory):
                     os.makedirs(directory)
                 path = os.path.join(directory, file_name)
                 with open(path,"wb") as output:
                     output.write(messages)
             self._group_message_dict = defaultdict(list)
-        timer = Timer(self._writing_interval, self._start_writing)
-        timer.start()
+        self.timer = Timer(self._writing_interval, self._start_writing)
+        self.timer.start()
+
+    def __stop_writing(self):
+        self.timer.cancel()
 
     def saveSingleMsg(self, sender, receiver, msg):
         if isinstance(sender, unicode) and sender \
@@ -93,8 +99,9 @@ class MessageSaver(object):
             path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                 "data","picture",pic_name+format)
             if not os.path.exists(path):
-                with open(path,"wb") as output:
-                    output.write(content)
+                os.makedirs(os.path.dirname(path))
+            with open(path,"wb") as output:
+                output.write(content)
             return pic_name+format
         else:
             return False
