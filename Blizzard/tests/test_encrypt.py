@@ -15,7 +15,7 @@ from Blizzard import encrypt
 
 class testEncrypt(unittest.TestCase):
     def setUp(self):
-        key = "".join([hex(random.randint(1,15))[2:] for x in xrange(16)])
+        key = os.urandom(16).encode("hex")
         self.encryptor = encrypt.Encryptor(int(key, 16))
         
     def test_Encryptor(self):

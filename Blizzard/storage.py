@@ -22,8 +22,7 @@ class MessageSaver(object):
         with open(conf_path,"wb") as conf:
             import random
             _default_interval = 600
-            _encrypt_key = int("".join([hex(random.randint(1,15))[2:]
-                                        for x in xrange(16)]),16)
+            _encrypt_key = int(os.urandom(16).encode("hex"),16)
             writing_interval = " ".join(("writing_interval",
                                          str(_default_interval)))+";"
             encrypt_key = " ".join(("encrypt_key",str(_encrypt_key)))+";"

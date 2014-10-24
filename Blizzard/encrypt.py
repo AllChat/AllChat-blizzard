@@ -12,9 +12,10 @@ class Encryptor(object):
             blocks += 1
             hex_str = hex_str.zfill(blocks*self._block_length)
         return "".join([hex(int(hex_str[i*self._block_length:(i+1)*self._block_length],16)^self._key
-            ).lstrip("0x").rstrip("L").zfill(self._key_length) for i in xrange(blocks)])
+            ).lstrip("0x").rstrip("L").zfill(self._key_length) for i in xrange(blocks)]).decode("hex")
 
     def DecryptStr(self,string):
+        string = string.encode("hex")
         blocks = len(string)/self._key_length
         hex_str = "".join([hex(int(string[i*self._key_length:(i+1)*self._key_length],16)^self._key
             ).lstrip("0x").rstrip("L").zfill(self._block_length) for i in xrange(blocks)])
