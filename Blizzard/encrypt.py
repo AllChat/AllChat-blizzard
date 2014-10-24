@@ -3,7 +3,7 @@ class Encryptor(object):
     def __init__(self, key):
         self._key = key
         self._key_length = len(hex(key).lstrip("0x").rstrip("L"))
-        self._block_length = self._key_length-1
+        self._block_length = self._key_length
 
     def EncryptStr(self,string):
         hex_str = string.encode("hex")

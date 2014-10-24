@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import sys
 import time
@@ -19,9 +20,9 @@ class testStorage(unittest.TestCase):
 
     def test_SaveSingleMsg(self):
         # normal condition
-        self.assertTrue(self.saver.saveSingleMsg(sender=u"Alex",
-            receiver=u"Tom", msg=[time.strftime(
-                "%Y-%m-%d %H:%M:%S",time.localtime()), u"hello!"]))
+        self.assertTrue(self.saver.saveSingleMsg(sender="Alex",
+            receiver="Tom", msg=[time.strftime(
+                "%Y-%m-%d %H:%M:%S",time.localtime()), "你好!天气不错"]))
         # missing required args
         self.assertRaises(TypeError, self.saver.saveSingleMsg, )
         # getting unexpected args
@@ -33,9 +34,9 @@ class testStorage(unittest.TestCase):
 
     def test_SaveGroupMsg(self):
         # normal condition
-        self.assertTrue(self.saver.saveGroupMsg(sender=u"Alex",
+        self.assertTrue(self.saver.saveGroupMsg(sender="Alex",
             group_id=10001, msg=[time.strftime(
-                "%Y-%m-%d %H:%M:%S",time.localtime()), u"Hi, everyone!"]))
+                "%Y-%m-%d %H:%M:%S",time.localtime()), "Hi, everyone!"]))
         # missing required args
         self.assertRaises(TypeError, self.saver.saveGroupMsg, )
         # getting unexpected args
@@ -47,7 +48,7 @@ class testStorage(unittest.TestCase):
 
     def test_SavePicture(self):
         # normal condition
-        path = self.saver.savePicture(content="abcdefg",format=".jpg")
+        path = self.saver.savePicture(content="abcdefg",format_=".jpg")
         import hashlib
         md5 = hashlib.md5()
         md5.update("abcdefg")
@@ -58,7 +59,7 @@ class testStorage(unittest.TestCase):
         # getting unexpected args
         self.assertRaises(TypeError, self.saver.savePicture, sender="")
         # required args being empty
-        self.assertFalse(self.saver.savePicture(content="",format=""))
+        self.assertFalse(self.saver.savePicture(content="",format_=""))
 
     def tearDown(self):
         self.saver._MessageSaver__stop_writing()

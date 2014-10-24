@@ -1,4 +1,4 @@
-# --*-- coding:utf-8 --*--
+# -*- coding:utf-8 -*-
 import os
 import time
 import hashlib
@@ -16,13 +16,28 @@ class MessageSaver(object):
         self._encryptor = Encryptor(self._encrypt_key)
         self._start_writing()
 
+    def _init_config(self, conf_path):
+        if not os.path.exists(os.path.dirname(conf_path)):
+            os.makedirs(os.path.dirname(conf_path))
+        with open(conf_path,"wb") as conf:
+            import random
+            _default_interval = 600
+            _encrypt_key = int("".join([hex(random.randint(1,15))[2:]
+                                        for x in xrange(16)]),16)
+            writing_interval = " ".join(("writing_interval",
+                                         str(_default_interval)))+";"
+            encrypt_key = " ".join(("encrypt_key",str(_encrypt_key)))+";"
+            conf.write(os.linesep.join((writing_interval,encrypt_key)))
+
     def _get_config(self):
         root = os.path.dirname(self._current_directory)
         conf_path = os.path.join(root, "conf", "blizzard.conf")
+        if not os.path.exists(conf_path):
+            self._init_config(conf_path)
         with open(conf_path,"rb") as conf:
             config_dict = dict(tuple(line.split(";")[0].split(" "))
-                for line in conf)
-        self._writing_interval = float(config_dict.get("writing_interval", 600))
+                               for line in conf)
+        self._writing_interval = float(config_dict.get("writing_interval",600))
         self._encrypt_key = int(config_dict.get("encrypt_key"))
 
     def _start_writing(self):
@@ -36,14 +51,14 @@ class MessageSaver(object):
                 messages = "\r\n\r\n".join(self._single_message_dict[users])
                 messages = self._encryptor.EncryptStr(messages)
                 directory = os.path.join(root, "data", "single_messages",
-                    sender, receiver, year, month, day)
+                                         sender, receiver, year, month, day)
                 if not os.path.exists(directory):
                     os.makedirs(directory)
                 path = os.path.join(directory, file_name)
                 with open(path,"wb") as output:
                     output.write(messages)
                 directory = os.path.join(root, "data", "single_messages",
-                    receiver, sender, year, month, day)
+                                         receiver, sender, year, month, day)
                 if not os.path.exists(directory):
                     os.makedirs(directory)
                 path = os.path.join(directory, file_name)
@@ -54,7 +69,7 @@ class MessageSaver(object):
                 messages = "\r\n\r\n".join(self._group_message_dict[group_id])
                 messages = self._encryptor.EncryptStr(messages)
                 directory = os.path.join(root, "data", "group_messages",
-                    str(group_id), year, month, day)
+                                         str(group_id), year, month, day)
                 if not os.path.exists(directory):
                     os.makedirs(directory)
                 path = os.path.join(directory, file_name)
@@ -70,9 +85,7 @@ class MessageSaver(object):
         self.timer.cancel()
 
     def saveSingleMsg(self, sender, receiver, msg):
-        if isinstance(sender, unicode) and sender \
-            and(isinstance(receiver, unicode) and receiver) \
-            and(isinstance(msg, list) and msg[0] and msg[1]):
+        if sender and receiver and isinstance(msg, list) and msg[0] and msg[1]:
             key = "&&".join(set([sender,receiver]))
             self._single_message_dict[key].append(
                 "\r\n".join([sender,"\r\n".join(msg)]))
@@ -81,26 +94,24 @@ class MessageSaver(object):
             return False
 
     def saveGroupMsg(self, sender, group_id, msg):
-        if isinstance(sender, unicode) and sender \
-            and(isinstance(group_id, int) and group_id) \
-            and(isinstance(msg, list) and msg[0] and msg[1]):
+        if sender and group_id and isinstance(msg, list) and msg[0] and msg[1]:
             self._group_message_dict[group_id].append(
                 "\r\n".join([sender,"\r\n".join(msg)]))
             return True
         else:
             return False
 
-    def savePicture(self, content, format):
-        if content and (isinstance(format,str) and format):
+    def savePicture(self, content, format_):
+        if content and (isinstance(format_,str) and format_):
             md5 = hashlib.md5()
             md5.update(content)
             pic_name = md5.hexdigest()
             path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                "data","picture",pic_name+format)
+                                "data","picture",pic_name+format_)
             if not os.path.exists(path):
                 os.makedirs(os.path.dirname(path))
             with open(path,"wb") as output:
                 output.write(content)
-            return pic_name+format
+            return pic_name+format_
         else:
             return False
