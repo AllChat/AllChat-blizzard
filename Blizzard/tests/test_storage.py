@@ -16,7 +16,7 @@ from Blizzard import storage
 class testStorage(unittest.TestCase):
     """docstring for testStorage"""
     def setUp(self):
-        self.saver = storage.MessageSaver()
+        self.saver = storage.MessageSaver(test_mode=True)
 
     def test_SaveSingleMsg(self):
         # normal condition
@@ -35,7 +35,7 @@ class testStorage(unittest.TestCase):
     def test_SaveGroupMsg(self):
         # normal condition
         self.assertTrue(self.saver.saveGroupMsg(sender="Alex",
-            group_id=10001, msg=[time.strftime(
+            group_id="10001", msg=[time.strftime(
                 "%Y-%m-%d %H:%M:%S",time.localtime()), "Hi, everyone!"]))
         # missing required args
         self.assertRaises(TypeError, self.saver.saveGroupMsg, )
@@ -62,6 +62,7 @@ class testStorage(unittest.TestCase):
         self.assertFalse(self.saver.savePicture(content="",format_=""))
 
     def tearDown(self):
+        time.sleep(3)
         self.saver._MessageSaver__stop_writing()
 
 if __name__ == '__main__':
