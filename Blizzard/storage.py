@@ -20,7 +20,6 @@ class MessageSaver(object):
         if not os.path.exists(os.path.dirname(conf_path)):
             os.makedirs(os.path.dirname(conf_path))
         with open(conf_path,"wb") as conf:
-            import random
             _default_interval = 600
             _encrypt_key = int(os.urandom(16).encode("hex"),16)
             writing_interval = " ".join(("writing_interval",

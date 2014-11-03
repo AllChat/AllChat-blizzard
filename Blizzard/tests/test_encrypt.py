@@ -2,7 +2,6 @@
 import os
 import sys
 import unittest
-import random
 
 def initPath():
     project_path = os.path.dirname(
