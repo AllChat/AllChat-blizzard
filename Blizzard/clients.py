@@ -1,11 +1,20 @@
-# -*- coding:utf-8 -*-
+#!/usr/bin/env python
+#coding:utf-8
+"""
+  Author:   --<alen-alex>
+  Purpose: serve as the message and picture storage backend of
+           AllChat IM server
+  Created: 2014/10/18
+"""
+import os
+import retrieve
 from flask import Flask, request
 app = Flask(__name__)
 
 from storage import MessageSaver
 saver = MessageSaver()
 
-@app.route("/saveSingleMsg", methods=["POST"])
+@app.route("/saveSingleMsg/", methods=["POST"])
 def saveSingleMsg():
     try:
         para = request.get_json()
@@ -22,7 +31,7 @@ def saveSingleMsg():
     else:
         return ("Invalid para values.", 404)
 
-@app.route("/saveGroupMsg", methods=["POST"])
+@app.route("/saveGroupMsg/", methods=["POST"])
 def saveGroupMsg():
     try:
         para = request.get_json()
@@ -39,7 +48,7 @@ def saveGroupMsg():
     else:
         return ("Invalid para values.", 404)
 
-@app.route("/savePicture", methods=["POST"])
+@app.route("/savePicture/", methods=["POST"])
 def savePicture():
     try:
         para = request.get_json()
@@ -54,6 +63,46 @@ def savePicture():
         return "Picture saved."
     else:
         return ("Invalid para values.", 404)
+
+@app.route("/getSingleMsg/", methods=["GET"])
+def getSingleMsg():
+    try:
+        header = request.headers
+    except:
+        return ("Can not parse header.", 403)
+    sender = header.get("sender", None)
+    receiver = header.get("receiver", None)
+    start_date = header.get("start_date", None)
+    end_date = header.get("end_date", None)
+    if not all((sender, receiver, start_date, end_date)):
+        return ("Required paras not found.", 404)
+    users = "&&".join(set((sender, receiver)))
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    directory = os.path.join(root, "data", "single_messages", users)
+    if os.path.exists(directory):
+        return retrieve.getMessages(directory, start_date, end_date)
+    else:
+        return "Does not have any records."
+    return "This is getSingleMsg."
+
+@app.route("/getGroupMsg/", methods=["GET"])
+def getGroupMsg():
+    try:
+        header = request.headers
+    except:
+        return ("Can not parse header.", 403)
+    group_id = header.get("group_id", None)
+    start_date = header.get("start_date", None)
+    end_date = header.get("end_date", None)
+    if not all((group_id, start_date, end_date)):
+        return ("Required paras not found.", 404)
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    directory = os.path.join(root, "data", "group_messages", str(group_id))
+    if os.path.exists(directory):
+        return retrieve.getMessages(directory, start_date, end_date)
+    else:
+        return "Does not have any records."
+    return "This is getSingleMsg."
 
 if __name__=="__main__":
     app.run()

@@ -12,6 +12,8 @@ class MessageSaver(object):
         self._group_message_dict = defaultdict(list)
         self._current_directory = os.path.dirname(os.path.abspath(__file__))
         self._get_config()
+        self._intra_msg_sep = "\t\t"
+        self._inter_msg_sep = "\t\t\t\t"
         self._timer = None
         self._encryptor = Encryptor(self._encrypt_key)
         if test_mode:
@@ -47,7 +49,7 @@ class MessageSaver(object):
             year, month, day = date.split("-")
             file_name = day+".bin"
             for users in self._single_message_dict.iterkeys():
-                messages = "\r\n\r\n".join(self._single_message_dict[users])
+                messages = self._inter_msg_sep.join(self._single_message_dict[users])
                 messages = self._encryptor.EncryptStr(messages)
                 directory = os.path.join(root, "data", "single_messages",
                                          users, year, month)
@@ -59,7 +61,7 @@ class MessageSaver(object):
                     output.write(os.linesep)
             self._single_message_dict = defaultdict(list)
             for group_id in self._group_message_dict.iterkeys():
-                messages = "\r\n\r\n".join(self._group_message_dict[group_id])
+                messages = self._inter_msg_sep.join(self._group_message_dict[group_id])
                 messages = self._encryptor.EncryptStr(messages)
                 directory = os.path.join(root, "data", "group_messages",
                                          str(group_id), year, month)
@@ -82,7 +84,7 @@ class MessageSaver(object):
         if sender and receiver and isinstance(msg, list) and msg[0] and msg[1]:
             key = "&&".join(set([sender,receiver]))
             self._single_message_dict[key].append(
-                "\r\n".join([sender,"\r\n".join(msg)]))
+                self._intra_msg_sep.join([sender,self._intra_msg_sep.join(msg)]))
             return True
         else:
             return False
@@ -90,7 +92,7 @@ class MessageSaver(object):
     def saveGroupMsg(self, sender, group_id, msg):
         if sender and group_id and isinstance(msg, list) and msg[0] and msg[1]:
             self._group_message_dict[group_id].append(
-                "\r\n".join([sender,"\r\n".join(msg)]))
+                self._intra_msg_sep.join([sender,self._intra_msg_sep.join(msg)]))
             return True
         else:
             return False

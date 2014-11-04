@@ -33,7 +33,7 @@ class testClients(unittest.TestCase):
                     "receiver":self._sender_pool[(i+1)%len(self._sender_pool)],
                     "message":[time.strftime("%Y-%m-%d %H:%M:%S",time.localtime()),
                                 self._message_pool[i%len(self._message_pool)]]}
-            self.connection.request("POST", "/saveSingleMsg",
+            self.connection.request("POST", "/saveSingleMsg/",
                 json.JSONEncoder().encode(data), headers)
             response = self.connection.getresponse()
             self.assertEqual(response.read(), "Singe message saved.")
@@ -45,7 +45,7 @@ class testClients(unittest.TestCase):
                     "group_id":"10011",
                     "message":[time.strftime("%Y-%m-%d %H:%M:%S",time.localtime()),
                                 self._message_pool[i%len(self._message_pool)]]}
-            self.connection.request("POST", "/saveGroupMsg",
+            self.connection.request("POST", "/saveGroupMsg/",
                 json.JSONEncoder().encode(data), headers)
             response = self.connection.getresponse()
             self.assertEqual(response.read(), "Group message saved.")
@@ -53,7 +53,7 @@ class testClients(unittest.TestCase):
     def test_SavePicture(self):
         headers = {"Content-type":"application/json; charset=UTF-8"}
         data = {"content":os.urandom(4096).encode("hex"), "format":".jpg"}
-        self.connection.request("POST", "/savePicture",
+        self.connection.request("POST", "/savePicture/",
             json.JSONEncoder().encode(data), headers)
         response = self.connection.getresponse()
         self.assertEqual(response.read(), "Picture saved.")
